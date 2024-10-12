@@ -88,7 +88,7 @@ const SignUp = () => {
                 <p className="text-black200 text-2xl py-4">Last Name:</p>
                 <input
                   type="text"
-                  name="lastname"
+                  name="lastName"
                   value={personalInfo.lastName}
                   onChange={(e) => handleInputChange(e, "personal")}
                   placeholder="Last Name"
