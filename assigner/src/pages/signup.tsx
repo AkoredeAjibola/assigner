@@ -110,6 +110,8 @@ const SignUp = () => {
                   required
                   className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
                 />
+
+
                 <p className="text-black200 text-2xl py-4">Last Name:</p>
                 <input
                   type="text"
@@ -120,6 +122,7 @@ const SignUp = () => {
                   required
                   className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
                 />
+
                 <p className="text-black200 text-2xl py-4">Email:</p>
                 <input
                   type="email"
@@ -130,6 +133,8 @@ const SignUp = () => {
                   required
                   className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
                 />
+
+
                 <p className="text-black200 text-2xl py-4">Password:</p>
                 <div className="relative">
                   <input
@@ -141,6 +146,8 @@ const SignUp = () => {
                     required
                     className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
                   />
+
+
                   <button
                     type="button"
                     onClick={togglePasswordVisibility}
@@ -164,6 +171,8 @@ const SignUp = () => {
                     required
                     className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
                   />
+
+
                   <button
                     type="button"
                     onClick={togglePasswordVisibility}
@@ -201,6 +210,8 @@ const SignUp = () => {
                   required
                   className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
                 />
+
+
                 <p className="text-black200 text-2xl py-4">Company Address:</p>
                 <input
                   type="text"
@@ -211,6 +222,8 @@ const SignUp = () => {
                   required
                   className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
                 />
+
+
                 <p className="text-black200 text-2xl py-4">Role:</p>
                 <select
                   name="role"
@@ -219,6 +232,8 @@ const SignUp = () => {
                   className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
                   required
                 >
+
+
                   <option value="" disabled>
                     Select your role
                   </option>
@@ -243,6 +258,7 @@ const SignUp = () => {
                   >
                     Back
                   </button>
+                  
                   <button
                     type="submit"
                     className="text-white w-1/2 bg-blue-700 text-3xl rounded-lg py-3 ml-2"
