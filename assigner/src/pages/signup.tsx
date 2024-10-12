@@ -81,14 +81,14 @@ const SignUp = () => {
                   name="firstName"
                   value={personalInfo.firstName}
                   onChange={(e) => handleInputChange(e, "personal")}
-                  placeholder=" Name"
+                  placeholder="FirstName"
                   required
                   className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
                 />
                 <p className="text-black200 text-2xl py-4">LastName:</p>
                 <input
                   type="text"
-                  name="lastname"
+                  name="Lastname"
                   value={personalInfo.lastName}
                   onChange={(e) => handleInputChange(e, "personal")}
                   placeholder="lastName"
