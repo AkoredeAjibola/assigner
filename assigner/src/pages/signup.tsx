@@ -6,7 +6,7 @@ import homeBg from "../assets/Home.png";
 const SignUp = () => {
   const [step, setStep] = useState(1); // Track which step the form is on (1 for personal, 2 for company's information)
   const [personalInfo, setPersonalInfo] = useState({
-    fullName: "",
+    firstName: "",
     lastName: "",
     email: "",
     password: "",
@@ -23,7 +23,7 @@ const SignUp = () => {
   const handleNext = () => {
     // Validation to check all personal fields are filled before moving to the next step
     if (
-      personalInfo.fullName &&
+      personalInfo.firstName &&
       personalInfo.lastName &&
       personalInfo.email &&
       personalInfo.password &&
@@ -75,20 +75,20 @@ const SignUp = () => {
                 <p className="text-black200 text-3xl mb-6 font-extrabold">
                   Personal Information
                 </p>
-                <p className="text-black200 text-2xl py-4">Full Name:</p>
+                <p className="text-black200 text-2xl py-4">FirstName:</p>
                 <input
                   type="text"
-                  name="fullName"
-                  value={personalInfo.fullName}
+                  name="firstName"
+                  value={personalInfo.firstName}
                   onChange={(e) => handleInputChange(e, "personal")}
-                  placeholder="Full Name"
+                  placeholder=" Name"
                   required
                   className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
                 />
-                <p className="text-black200 text-2xl py-4">Username:</p>
+                <p className="text-black200 text-2xl py-4">LastName:</p>
                 <input
                   type="text"
-                  name="username"
+                  name="lastname"
                   value={personalInfo.lastName}
                   onChange={(e) => handleInputChange(e, "personal")}
                   placeholder="lastName"
