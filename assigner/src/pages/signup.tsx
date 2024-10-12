@@ -7,7 +7,7 @@ const SignUp = () => {
   const [step, setStep] = useState(1); // Track which step the form is on (1 for personal, 2 for company's information)
   const [personalInfo, setPersonalInfo] = useState({
     fullName: "",
-    username: "",
+    lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -24,7 +24,7 @@ const SignUp = () => {
     // Validation to check all personal fields are filled before moving to the next step
     if (
       personalInfo.fullName &&
-      personalInfo.username &&
+      personalInfo.lastName &&
       personalInfo.email &&
       personalInfo.password &&
       personalInfo.confirmPassword
@@ -89,9 +89,9 @@ const SignUp = () => {
                 <input
                   type="text"
                   name="username"
-                  value={personalInfo.username}
+                  value={personalInfo.lastName}
                   onChange={(e) => handleInputChange(e, "personal")}
-                  placeholder="Username"
+                  placeholder="lastName"
                   required
                   className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
                 />
