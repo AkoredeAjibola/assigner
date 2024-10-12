@@ -14,8 +14,9 @@ interface UserData {
 
 export const addUser = async (user: UserData) => {
   try {
+    console.log("Adding user:", user); // Log user data before adding to Firebase
     const docRef = await addDoc(collection(db, "Users"), user);
-    console.log("User with ID:", docRef.id);
+    console.log("User with ID:", docRef.id); 
   } catch (e) {
     console.log("Error adding user data", e);
   }

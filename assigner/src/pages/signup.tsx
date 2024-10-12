@@ -61,7 +61,9 @@ const SignUp = () => {
     }
   };
 
-  const onSubmit = () => {
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault(); 
+
     const User = {
       firstName: personalInfo.firstName,
       lastName: personalInfo.lastName,
@@ -92,7 +94,7 @@ const SignUp = () => {
         </div>
 
         <div className="flex md:w-[1204px] md:h-[1190px] w-full h-auto flex-col justify-center items-center">
-          <form className="md:px-10 px-7 mt-12 mx-auto w-full">
+          <form onSubmit={onSubmit} className="md:px-10 px-7 mt-12 mx-auto w-full">
             {step === 1 && (
               <>
                 <p className="text-black200 text-3xl mb-6 font-extrabold">
@@ -244,7 +246,7 @@ const SignUp = () => {
                   <button
                     type="submit"
                     className="text-white w-1/2 bg-blue-700 text-3xl rounded-lg py-3 ml-2"
-                    onClick={onSubmit}
+                    
                   >
                     Signup
                   </button>
