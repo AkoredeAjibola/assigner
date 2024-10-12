@@ -1,13 +1,58 @@
-import { useState } from "react";
+import { useState, ChangeEvent } from "react";
 import image3 from "../assets/undraw_my_app_re_gxtj 1.png";
 import Navbar from "../components/navbar";
 import homeBg from "../assets/Home.png";
 
 const SignUp = () => {
   const [step, setStep] = useState(1); // Track which step the form is on (1 for personal, 2 for company's information)
+  const [personalInfo, setPersonalInfo] = useState({
+    fullName: "",
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const [companyInfo, setCompanyInfo] = useState({
+    companyName: "",
+    companyAddress: "",
+    role: "",
+    position: "",
+  });
 
   const handleNext = () => {
-    setStep((prevStep) => (prevStep === 1 ? 2 : 1)); // Toggle between step 1 and step 2
+    // Validation to check all personal fields are filled before moving to the next step
+    if (
+      personalInfo.fullName &&
+      personalInfo.username &&
+      personalInfo.email &&
+      personalInfo.password &&
+      personalInfo.confirmPassword
+    ) {
+      if (personalInfo.password !== personalInfo.confirmPassword) {
+        alert("Passwords do not match!");
+      } else {
+        setStep(2); // Go to the next step (company's information)
+      }
+    } else {
+      alert("Please fill in all personal information fields.");
+    }
+  };
+
+  const handleBack = () => {
+    setStep(1); // Go back to the personal information step
+  };
+
+  const handleInputChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, 
+    formType: "personal" | "company"
+  ) => {
+    const { name, value } = e.target;
+    if (formType === "personal") {
+      setPersonalInfo({ ...personalInfo, [name]: value });
+    } else {
+      setCompanyInfo({ ...companyInfo, [name]: value });
+    }
   };
 
   return (
@@ -25,14 +70,17 @@ const SignUp = () => {
 
         <div className="flex md:w-[1204px] md:h-[1190px] w-full h-auto flex-col justify-center items-center">
           <form className="md:px-10 px-7 mt-12 mx-auto w-full">
-            {/* <p className="text-black200 text-3xl mb-6 font-extrabold">Signup</p> */}
-
             {step === 1 && (
               <>
-              <p className="text-black200 text-3xl mb-6 font-extrabold">Personal Information</p>
+                <p className="text-black200 text-3xl mb-6 font-extrabold">
+                  Personal Information
+                </p>
                 <p className="text-black200 text-2xl py-4">Full Name:</p>
                 <input
                   type="text"
+                  name="fullName"
+                  value={personalInfo.fullName}
+                  onChange={(e) => handleInputChange(e, "personal")}
                   placeholder="Full Name"
                   required
                   className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
@@ -40,6 +88,9 @@ const SignUp = () => {
                 <p className="text-black200 text-2xl py-4">Username:</p>
                 <input
                   type="text"
+                  name="username"
+                  value={personalInfo.username}
+                  onChange={(e) => handleInputChange(e, "personal")}
                   placeholder="Username"
                   required
                   className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
@@ -47,6 +98,9 @@ const SignUp = () => {
                 <p className="text-black200 text-2xl py-4">Email:</p>
                 <input
                   type="email"
+                  name="email"
+                  value={personalInfo.email}
+                  onChange={(e) => handleInputChange(e, "personal")}
                   placeholder="Email"
                   required
                   className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
@@ -54,6 +108,9 @@ const SignUp = () => {
                 <p className="text-black200 text-2xl py-4">Password:</p>
                 <input
                   type="password"
+                  name="password"
+                  value={personalInfo.password}
+                  onChange={(e) => handleInputChange(e, "personal")}
                   placeholder="Password"
                   required
                   className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
@@ -61,6 +118,9 @@ const SignUp = () => {
                 <p className="text-black200 text-2xl py-4">Confirm Password:</p>
                 <input
                   type="password"
+                  name="confirmPassword"
+                  value={personalInfo.confirmPassword}
+                  onChange={(e) => handleInputChange(e, "personal")}
                   placeholder="Confirm Password"
                   required
                   className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
@@ -77,10 +137,15 @@ const SignUp = () => {
 
             {step === 2 && (
               <>
-              <p className="text-black200 text-3xl mb-6 font-extrabold">Company's Details</p>
+                <p className="text-black200 text-3xl mb-6 font-extrabold">
+                  Company's Details
+                </p>
                 <p className="text-black200 text-2xl py-4">Company Name:</p>
                 <input
                   type="text"
+                  name="companyName"
+                  value={companyInfo.companyName}
+                  onChange={(e) => handleInputChange(e, "company")}
                   placeholder="Company Name"
                   required
                   className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
@@ -88,16 +153,22 @@ const SignUp = () => {
                 <p className="text-black200 text-2xl py-4">Company Address:</p>
                 <input
                   type="text"
+                  name="companyAddress"
+                  value={companyInfo.companyAddress}
+                  onChange={(e) => handleInputChange(e, "company")}
                   placeholder="Company Address"
                   required
                   className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
                 />
                 <p className="text-black200 text-2xl py-4">Role:</p>
                 <select
+                  name="role"
+                  value={companyInfo.role}
+                  onChange={(e) => handleInputChange(e, "company")}
                   className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
                   required
                 >
-                  <option value="" disabled selected>
+                  <option value="" disabled>
                     Select your role
                   </option>
                   <option value="employer">Employer</option>
@@ -106,20 +177,28 @@ const SignUp = () => {
                 <p className="text-black200 text-2xl py-4">Position:</p>
                 <input
                   type="text"
+                  name="position"
+                  value={companyInfo.position}
+                  onChange={(e) => handleInputChange(e, "company")}
                   placeholder="Position"
                   required
                   className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
                 />
-                <button
-                  type="button"
-                  onClick={handleNext}
-                  className="text-white mt-10 w-full bg-blue-700 text-3xl rounded-lg py-3"
-                >
-                  Back
-                </button>
-                <button className="text-white mt-4 w-full bg-blue-700 text-3xl rounded-lg py-3">
-                  Signup
-                </button>
+                <div className="flex justify-between mt-10">
+                  <button
+                    type="button"
+                    onClick={handleBack}
+                    className="text-white w-1/2 bg-blue-700 text-3xl rounded-lg py-3 mr-2"
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="submit"
+                    className="text-white w-1/2 bg-blue-700 text-3xl rounded-lg py-3 ml-2"
+                  >
+                    Signup
+                  </button>
+                </div>
               </>
             )}
 
