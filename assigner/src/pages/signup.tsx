@@ -2,6 +2,8 @@ import { useState, ChangeEvent } from "react";
 import image3 from "../assets/undraw_my_app_re_gxtj 1.png";
 import Navbar from "../components/navbar";
 import homeBg from "../assets/Home.png";
+import { addUser } from "../services/service";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const SignUp = () => {
   const [step, setStep] = useState(1); // Track which step the form is on (1 for personal, 2 for company's information)
@@ -12,6 +14,10 @@ const SignUp = () => {
     password: "",
     confirmPassword: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   const [companyInfo, setCompanyInfo] = useState({
     companyName: "",
@@ -44,7 +50,7 @@ const SignUp = () => {
   };
 
   const handleInputChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, 
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
     formType: "personal" | "company"
   ) => {
     const { name, value } = e.target;
@@ -53,6 +59,23 @@ const SignUp = () => {
     } else {
       setCompanyInfo({ ...companyInfo, [name]: value });
     }
+  };
+
+  const onSubmit = () => {
+    const User = {
+      firstName: personalInfo.firstName,
+      lastName: personalInfo.lastName,
+      email: personalInfo.email,
+      password: personalInfo.password,
+      companyName: companyInfo.companyName,
+      companyAddress: companyInfo.companyAddress,
+      role: companyInfo.role,
+      position: companyInfo.position,
+    };
+
+    addUser(User);
+
+    console.log(User);
   };
 
   return (
@@ -75,23 +98,23 @@ const SignUp = () => {
                 <p className="text-black200 text-3xl mb-6 font-extrabold">
                   Personal Information
                 </p>
-                <p className="text-black200 text-2xl py-4">FirstName:</p>
+                <p className="text-black200 text-2xl py-4">First Name:</p>
                 <input
                   type="text"
                   name="firstName"
                   value={personalInfo.firstName}
                   onChange={(e) => handleInputChange(e, "personal")}
-                  placeholder="FirstName"
+                  placeholder="First Name"
                   required
                   className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
                 />
-                <p className="text-black200 text-2xl py-4">LastName:</p>
+                <p className="text-black200 text-2xl py-4">Last Name:</p>
                 <input
                   type="text"
-                  name="Lastname"
+                  name="lastName"
                   value={personalInfo.lastName}
                   onChange={(e) => handleInputChange(e, "personal")}
-                  placeholder="lastName"
+                  placeholder="Last Name"
                   required
                   className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
                 />
@@ -106,25 +129,51 @@ const SignUp = () => {
                   className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
                 />
                 <p className="text-black200 text-2xl py-4">Password:</p>
-                <input
-                  type="password"
-                  name="password"
-                  value={personalInfo.password}
-                  onChange={(e) => handleInputChange(e, "personal")}
-                  placeholder="Password"
-                  required
-                  className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={personalInfo.password}
+                    onChange={(e) => handleInputChange(e, "personal")}
+                    placeholder="Password"
+                    required
+                    className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
+                  />
+                  <button
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                    className="absolute right-5 top-1/2 transform -translate-y-1/2 text-black"
+                  >
+                    {showPassword ? (
+                      <FaEyeSlash size={25} />
+                    ) : (
+                      <FaEye size={25} />
+                    )}
+                  </button>
+                </div>
                 <p className="text-black200 text-2xl py-4">Confirm Password:</p>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={personalInfo.confirmPassword}
-                  onChange={(e) => handleInputChange(e, "personal")}
-                  placeholder="Confirm Password"
-                  required
-                  className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="confirmPassword"
+                    value={personalInfo.confirmPassword}
+                    onChange={(e) => handleInputChange(e, "personal")}
+                    placeholder="Confirm Password"
+                    required
+                    className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
+                  />
+                  <button
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                    className="absolute right-5 top-1/2 transform -translate-y-1/2 text-black"
+                  >
+                    {showPassword ? (
+                      <FaEyeSlash size={25} />
+                    ) : (
+                      <FaEye size={25} />
+                    )}
+                  </button>
+                </div>
                 <button
                   type="button"
                   onClick={handleNext}
@@ -195,6 +244,7 @@ const SignUp = () => {
                   <button
                     type="submit"
                     className="text-white w-1/2 bg-blue-700 text-3xl rounded-lg py-3 ml-2"
+                    onClick={onSubmit}
                   >
                     Signup
                   </button>
