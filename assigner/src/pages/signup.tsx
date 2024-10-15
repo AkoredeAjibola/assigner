@@ -4,49 +4,83 @@ import Navbar from "../components/navbar";
 import homeBg from "../assets/Home.png";
 import { addUser } from "../services/service";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import CustomPopup from "../components/CustomPopup";
+import { toast } from "react-toastify";
 
-const SignUp = () => {
-  const [step, setStep] = useState(1); // Track which step the form is on (1 for personal, 2 for company's information)
-  const [personalInfo, setPersonalInfo] = useState({
+// Define types for personal and company information
+interface PersonalInfo {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
+interface CompanyInfo {
+  companyName: string;
+  companyAddress: string;
+  role: string;
+  position: string;
+}
+
+const SignUp: React.FC = () => {
+  const [step, setStep] = useState<number>(1);
+  const [personalInfo, setPersonalInfo] = useState<PersonalInfo>({
     firstName: "",
     lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
-  const [companyInfo, setCompanyInfo] = useState({
+  const [companyInfo, setCompanyInfo] = useState<CompanyInfo>({
     companyName: "",
     companyAddress: "",
     role: "",
     position: "",
   });
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [errors, setErrors] = useState<Partial<Record<keyof PersonalInfo, string>>>({});
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const validatePersonalInfo = () => {
+    const newErrors: Partial<Record<keyof PersonalInfo, string>> = {};
+
+    if (!personalInfo.firstName) {
+      newErrors.firstName = "First Name is required.";
+    }
+    if (!personalInfo.lastName) {
+      newErrors.lastName = "Last Name is required.";
+    }
+    if (!personalInfo.email) {
+      newErrors.email = "Email is required.";
+    } else if (!/\S+@\S+\.\S+/.test(personalInfo.email)) {
+      newErrors.email = "Email is invalid.";
+    }
+    if (!personalInfo.password) {
+      newErrors.password = "Password is required.";
+    } else if (personalInfo.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters long.";
+    }
+    if (personalInfo.password !== personalInfo.confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match!";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleNext = () => {
-    // Validation to check all personal fields are filled before moving to the next step
-    if (
-      personalInfo.firstName &&
-      personalInfo.lastName &&
-      personalInfo.email &&
-      personalInfo.password &&
-      personalInfo.confirmPassword
-    ) {
-      if (personalInfo.password !== personalInfo.confirmPassword) {
-        alert("Passwords do not match!");
-      } else {
-        setStep(2); // Go to the next step (company's information)
-      }
-    } else {
-      alert("Please fill in all personal information fields.");
+    if (validatePersonalInfo()) {
+      setStep(2);
     }
   };
 
   const handleBack = () => {
-    setStep(1); // Go back to the personal information step
+    setStep(1);
   };
 
   const handleInputChange = (
@@ -56,40 +90,56 @@ const SignUp = () => {
     const { name, value } = e.target;
     if (formType === "personal") {
       setPersonalInfo({ ...personalInfo, [name]: value });
+      setErrors({ ...errors, [name]: "" }); // Clear error for this field
     } else {
       setCompanyInfo({ ...companyInfo, [name]: value });
     }
   };
 
   const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault(); 
+    e.preventDefault();
 
-    const User = {
-      firstName: personalInfo.firstName,
-      lastName: personalInfo.lastName,
-      email: personalInfo.email,
-      password: personalInfo.password,
-      companyName: companyInfo.companyName,
-      companyAddress: companyInfo.companyAddress,
-      role: companyInfo.role,
-      position: companyInfo.position,
+    const user = {
+      ...personalInfo,
+      ...companyInfo,
     };
 
-    addUser(User);
+    addUser(user)
+      .then(() => {
+        setPopupMessage(`Signup successful for ${personalInfo.lastName}!`);
+        setShowPopup(true);
 
-    console.log(User);
+        // Reset the form
+        setPersonalInfo({
+          firstName: "",
+          lastName: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+        });
+        setCompanyInfo({
+          companyName: "",
+          companyAddress: "",
+          role: "",
+          position: "",
+        });
+        setStep(1);
+      })
+      .catch((err) => {
+        console.error("Signup error:", err);
+        toast.error("Signup failed. Please try again.", { icon: false });
+      });
   };
 
   return (
     <div style={{ backgroundImage: `url(${homeBg})` }}>
       <Navbar />
-
-      {/* Body section */}
       <div className="font-montserrat font-semibold flex md:flex-row flex-col justify-center items-center">
         <div className="flex w-full h-auto justify-center items-center md:flex-row flex-col">
           <img
             src={image3}
             className="md:w-[503px] w-full h-auto md:h-[807px] md:mt-0 mt-8 px-5"
+            alt="Illustration"
           />
         </div>
 
@@ -107,10 +157,9 @@ const SignUp = () => {
                   value={personalInfo.firstName}
                   onChange={(e) => handleInputChange(e, "personal")}
                   placeholder="First Name"
-                  required
-                  className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
+                  className={`w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl ${errors.firstName ? 'border-red-500' : ''}`}
                 />
-
+                {errors.firstName && <p className="text-red-500">{errors.firstName}</p>}
 
                 <p className="text-black200 text-2xl py-4">Last Name:</p>
                 <input
@@ -119,9 +168,9 @@ const SignUp = () => {
                   value={personalInfo.lastName}
                   onChange={(e) => handleInputChange(e, "personal")}
                   placeholder="Last Name"
-                  required
-                  className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
+                  className={`w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl ${errors.lastName ? 'border-red-500' : ''}`}
                 />
+                {errors.lastName && <p className="text-red-500">{errors.lastName}</p>}
 
                 <p className="text-black200 text-2xl py-4">Email:</p>
                 <input
@@ -130,10 +179,9 @@ const SignUp = () => {
                   value={personalInfo.email}
                   onChange={(e) => handleInputChange(e, "personal")}
                   placeholder="Email"
-                  required
-                  className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
+                  className={`w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl ${errors.email ? 'border-red-500' : ''}`}
                 />
-
+                {errors.email && <p className="text-red-500">{errors.email}</p>}
 
                 <p className="text-black200 text-2xl py-4">Password:</p>
                 <div className="relative">
@@ -143,11 +191,8 @@ const SignUp = () => {
                     value={personalInfo.password}
                     onChange={(e) => handleInputChange(e, "personal")}
                     placeholder="Password"
-                    required
-                    className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
+                    className={`w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl ${errors.password ? 'border-red-500' : ''}`}
                   />
-
-
                   <button
                     type="button"
                     onClick={togglePasswordVisibility}
@@ -160,6 +205,8 @@ const SignUp = () => {
                     )}
                   </button>
                 </div>
+                {errors.password && <p className="text-red-500">{errors.password}</p>}
+
                 <p className="text-black200 text-2xl py-4">Confirm Password:</p>
                 <div className="relative">
                   <input
@@ -168,11 +215,8 @@ const SignUp = () => {
                     value={personalInfo.confirmPassword}
                     onChange={(e) => handleInputChange(e, "personal")}
                     placeholder="Confirm Password"
-                    required
-                    className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
+                    className={`w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl ${errors.confirmPassword ? 'border-red-500' : ''}`}
                   />
-
-
                   <button
                     type="button"
                     onClick={togglePasswordVisibility}
@@ -185,6 +229,8 @@ const SignUp = () => {
                     )}
                   </button>
                 </div>
+                {errors.confirmPassword && <p className="text-red-500">{errors.confirmPassword}</p>}
+
                 <button
                   type="button"
                   onClick={handleNext}
@@ -198,8 +244,9 @@ const SignUp = () => {
             {step === 2 && (
               <>
                 <p className="text-black200 text-3xl mb-6 font-extrabold">
-                  Company's Details
+                  Company Information
                 </p>
+
                 <p className="text-black200 text-2xl py-4">Company Name:</p>
                 <input
                   type="text"
@@ -207,10 +254,8 @@ const SignUp = () => {
                   value={companyInfo.companyName}
                   onChange={(e) => handleInputChange(e, "company")}
                   placeholder="Company Name"
-                  required
                   className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
                 />
-
 
                 <p className="text-black200 text-2xl py-4">Company Address:</p>
                 <input
@@ -219,10 +264,8 @@ const SignUp = () => {
                   value={companyInfo.companyAddress}
                   onChange={(e) => handleInputChange(e, "company")}
                   placeholder="Company Address"
-                  required
                   className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
                 />
-
 
                 <p className="text-black200 text-2xl py-4">Role:</p>
                 <select
@@ -250,7 +293,9 @@ const SignUp = () => {
                   required
                   className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
                 />
-                <div className="flex justify-between mt-10">
+
+               
+   <div className="flex justify-between mt-10">
                   <button
                     type="button"
                     onClick={handleBack}
@@ -269,9 +314,8 @@ const SignUp = () => {
                 </div>
               </>
             )}
-
-            {/* Step indicators */}
-            <div className="flex justify-center mt-8">
+                  {/* Step indicators */}
+                  <div className="flex justify-center mt-8">
               <div
                 className={`w-4 h-4 rounded-full mx-1 ${
                   step === 1 ? "bg-blue-600" : "bg-gray-300"
@@ -281,15 +325,18 @@ const SignUp = () => {
                 className={`w-4 h-4 rounded-full mx-1 ${
                   step === 2 ? "bg-blue-600" : "bg-gray-300"
                 }`}
-              />
-            </div>
+                />
+                </div>
           </form>
         </div>
       </div>
+      <CustomPopup
+        showPopup={showPopup}
+        popupMessage={popupMessage}
+        onClose={() => setShowPopup(false)}
+      />
     </div>
   );
 };
 
 export default SignUp;
-
-
