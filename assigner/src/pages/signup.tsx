@@ -1,11 +1,14 @@
-import { useState, ChangeEvent } from "react";
+// src/pages/SignUp.tsx
+
+import React, { useState, ChangeEvent } from "react";
 import image3 from "../assets/undraw_my_app_re_gxtj 1.png";
 import Navbar from "../components/navbar";
 import homeBg from "../assets/Home.png";
 import { addUser } from "../services/service";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import CustomPopup from "../components/CustomPopup";
-//import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 // Define types for personal and company information
 interface PersonalInfo {
@@ -39,37 +42,59 @@ const SignUp: React.FC = () => {
     position: "",
   });
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [errors, setErrors] = useState<Partial<Record<keyof PersonalInfo, string>>>({});
-  const [showPopup, setShowPopup] = useState(false);
-  const [popupMessage, setPopupMessage] = useState("");
+  const [errors, setErrors] = useState<Partial<Record<keyof PersonalInfo | keyof CompanyInfo, string>>>({});
+
+  const navigate = useNavigate(); // Initialize navigate
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  const validatePersonalInfo = () => {
+  const validatePersonalInfo = (): boolean => {
     const newErrors: Partial<Record<keyof PersonalInfo, string>> = {};
 
-    if (!personalInfo.firstName) {
-      newErrors.firstName = "First Name is required.";
+    if (!personalInfo.firstName.trim()) {
+      toast.error("First Name is required.");
     }
-    if (!personalInfo.lastName) {
-      newErrors.lastName = "Last Name is required.";
+    if (!personalInfo.lastName.trim()) {
+      toast.error("Last Name is required.");
     }
-    if (!personalInfo.email) {
-      newErrors.email = "Email is required.";
+    if (!personalInfo.email.trim()) {
+      toast.error("Email is required.");
     } else if (!/\S+@\S+\.\S+/.test(personalInfo.email)) {
-      newErrors.email = "Email is invalid.";
+      toast.error("Email is invalid.");
     }
     if (!personalInfo.password) {
-      newErrors.password = "Password is required.";
+      toast.error("Password is required.");
     } else if (personalInfo.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters long.";
+      toast.error("Password must be at least 6 characters long.");
     }
     if (personalInfo.password !== personalInfo.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match!";
+      toast.error("Passwords do not match!");
     }
-    setErrors(newErrors);
+
+    setErrors(prevErrors => ({ ...prevErrors, ...newErrors }));
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateCompanyInfo = (): boolean => {
+    const newErrors: Partial<Record<keyof CompanyInfo, string>> = {};
+
+    if (!companyInfo.companyName.trim()) {
+      toast.error("Company Name is required.");
+    }
+    if (!companyInfo.companyAddress.trim()) {
+      toast.error("Company Address is required.");
+    }
+    // Corrected role validation
+    if (companyInfo.role !== 'Employer' && companyInfo.role !== 'Employee') {
+      toast.error("Role is required.");
+    }
+    if (!companyInfo.position.trim()) {
+      toast.error("Position is required.");
+    }
+
+    setErrors(prevErrors => ({ ...prevErrors, ...newErrors }));
     return Object.keys(newErrors).length === 0;
   };
 
@@ -90,26 +115,30 @@ const SignUp: React.FC = () => {
     const { name, value } = e.target;
     if (formType === "personal") {
       setPersonalInfo({ ...personalInfo, [name]: value });
-      setErrors({ ...errors, [name]: "" }); // Clear error for this field
+      setErrors(prevErrors => ({ ...prevErrors, [name]: "" })); // Clear error for this field
     } else {
       setCompanyInfo({ ...companyInfo, [name]: value });
+      setErrors(prevErrors => ({ ...prevErrors, [name]: "" })); // Clear error for this field
     }
   };
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const user = {
-      ...personalInfo,
-      ...companyInfo,
-    };
+    if (validateCompanyInfo()) {
+      const user = {
+        ...personalInfo,
+        ...companyInfo,
+      };
 
-    addUser(user)
-      .then(() => {
-        setPopupMessage(`Signup successful for ${personalInfo.lastName}!`);
-        setShowPopup(true);
+      try {
+        await addUser(user);
+        toast.success("Signup successful! Redirecting to login page...", {
+          onClose: () => navigate("/login"), // Redirect after toast closes
+          autoClose: 2000, // 2 seconds
+        });
 
-        // Reset the form
+        // Optionally, you can reset the form here if needed
         setPersonalInfo({
           firstName: "",
           lastName: "",
@@ -124,17 +153,19 @@ const SignUp: React.FC = () => {
           position: "",
         });
         setStep(1);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("Signup error:", err);
-       // toast.error("Signup failed. Please try again.", { icon: false });
-      });
+        toast.error("Signup failed. Please try again.");
+      }
+    }
   };
 
   return (
-    <div style={{ backgroundImage: `url(${homeBg})` }}>
+    <div style={{ backgroundImage: `url(${homeBg})` }} className="min-h-screen bg-cover bg-center">
       <Navbar />
-      <div className="font-montserrat font-semibold flex md:flex-row flex-col justify-center items-center">
+      <ToastContainer /> {/* Display toast notifications */}
+      <div className="font-montserrat font-semibold flex md:flex-row flex-col justify-center items-center py-8">
+        {/* Image Section */}
         <div className="flex w-full h-auto justify-center items-center md:flex-row flex-col">
           <img
             src={image3}
@@ -143,6 +174,7 @@ const SignUp: React.FC = () => {
           />
         </div>
 
+        {/* Form Section */}
         <div className="flex md:w-[1204px] md:h-[1190px] w-full h-auto flex-col justify-center items-center">
           <form onSubmit={onSubmit} className="md:px-10 px-7 mt-12 mx-auto w-full">
             {step === 1 && (
@@ -150,87 +182,113 @@ const SignUp: React.FC = () => {
                 <p className="text-black200 text-3xl mb-6 font-extrabold">
                   Personal Information
                 </p>
-                <p className="text-black200 text-2xl py-4">First Name:</p>
-                <input
-                  type="text"
-                  name="firstName"
-                  value={personalInfo.firstName}
-                  onChange={(e) => handleInputChange(e, "personal")}
-                  placeholder="First Name"
-                  className={`w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl ${errors.firstName ? 'border-red-500' : ''}`}
-                />
-                {errors.firstName && <p className="text-red-500">{errors.firstName}</p>}
-
-                <p className="text-black200 text-2xl py-4">Last Name:</p>
-                <input
-                  type="text"
-                  name="lastName"
-                  value={personalInfo.lastName}
-                  onChange={(e) => handleInputChange(e, "personal")}
-                  placeholder="Last Name"
-                  className={`w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl ${errors.lastName ? 'border-red-500' : ''}`}
-                />
-                {errors.lastName && <p className="text-red-500">{errors.lastName}</p>}
-
-                <p className="text-black200 text-2xl py-4">Email:</p>
-                <input
-                  type="email"
-                  name="email"
-                  value={personalInfo.email}
-                  onChange={(e) => handleInputChange(e, "personal")}
-                  placeholder="Email"
-                  className={`w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl ${errors.email ? 'border-red-500' : ''}`}
-                />
-                {errors.email && <p className="text-red-500">{errors.email}</p>}
-
-                <p className="text-black200 text-2xl py-4">Password:</p>
-                <div className="relative">
+                {/* First Name */}
+                <div className="mb-4">
+                  <label className="block text-black200 text-2xl py-2">First Name:</label>
                   <input
-                    type={showPassword ? "text" : "password"}
-                    name="password"
-                    value={personalInfo.password}
+                    type="text"
+                    name="firstName"
+                    value={personalInfo.firstName}
                     onChange={(e) => handleInputChange(e, "personal")}
-                    placeholder="Password"
-                    className={`w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl ${errors.password ? 'border-red-500' : ''}`}
+                    placeholder="First Name"
+                    className={`w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl ${
+                      errors.firstName ? 'border-red-500' : ''
+                    }`}
                   />
-                  <button
-                    type="button"
-                    onClick={togglePasswordVisibility}
-                    className="absolute right-5 top-1/2 transform -translate-y-1/2 text-black"
-                  >
-                    {showPassword ? (
-                      <FaEyeSlash size={25} />
-                    ) : (
-                      <FaEye size={25} />
-                    )}
-                  </button>
+                  {errors.firstName && <p className="text-red-500">{errors.firstName}</p>}
                 </div>
-                {errors.password && <p className="text-red-500">{errors.password}</p>}
 
-                <p className="text-black200 text-2xl py-4">Confirm Password:</p>
-                <div className="relative">
+                {/* Last Name */}
+                <div className="mb-4">
+                  <label className="block text-black200 text-2xl py-2">Last Name:</label>
                   <input
-                    type={showPassword ? "text" : "password"}
-                    name="confirmPassword"
-                    value={personalInfo.confirmPassword}
+                    type="text"
+                    name="lastName"
+                    value={personalInfo.lastName}
                     onChange={(e) => handleInputChange(e, "personal")}
-                    placeholder="Confirm Password"
-                    className={`w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl ${errors.confirmPassword ? 'border-red-500' : ''}`}
+                    placeholder="Last Name"
+                    className={`w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl ${
+                      errors.lastName ? 'border-red-500' : ''
+                    }`}
                   />
-                  <button
-                    type="button"
-                    onClick={togglePasswordVisibility}
-                    className="absolute right-5 top-1/2 transform -translate-y-1/2 text-black"
-                  >
-                    {showPassword ? (
-                      <FaEyeSlash size={25} />
-                    ) : (
-                      <FaEye size={25} />
-                    )}
-                  </button>
+                  {errors.lastName && <p className="text-red-500">{errors.lastName}</p>}
                 </div>
-                {errors.confirmPassword && <p className="text-red-500">{errors.confirmPassword}</p>}
 
+                {/* Email */}
+                <div className="mb-4">
+                  <label className="block text-black200 text-2xl py-2">Email:</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={personalInfo.email}
+                    onChange={(e) => handleInputChange(e, "personal")}
+                    placeholder="Email"
+                    className={`w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl ${
+                      errors.email ? 'border-red-500' : ''
+                    }`}
+                  />
+                  {errors.email && <p className="text-red-500">{errors.email}</p>}
+                </div>
+
+                {/* Password */}
+                <div className="mb-4">
+                  <label className="block text-black200 text-2xl py-2">Password:</label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      value={personalInfo.password}
+                      onChange={(e) => handleInputChange(e, "personal")}
+                      placeholder="Password"
+                      className={`w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl ${
+                        errors.password ? 'border-red-500' : ''
+                      }`}
+                    />
+                    <button
+                      type="button"
+                      onClick={togglePasswordVisibility}
+                      className="absolute right-5 top-1/2 transform -translate-y-1/2 text-black"
+                    >
+                      {showPassword ? (
+                        <FaEyeSlash size={25} />
+                      ) : (
+                        <FaEye size={25} />
+                      )}
+                    </button>
+                  </div>
+                  {errors.password && <p className="text-red-500">{errors.password}</p>}
+                </div>
+
+                {/* Confirm Password */}
+                <div className="mb-4">
+                  <label className="block text-black200 text-2xl py-2">Confirm Password:</label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      name="confirmPassword"
+                      value={personalInfo.confirmPassword}
+                      onChange={(e) => handleInputChange(e, "personal")}
+                      placeholder="Confirm Password"
+                      className={`w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl ${
+                        errors.confirmPassword ? 'border-red-500' : ''
+                      }`}
+                    />
+                    <button
+                      type="button"
+                      onClick={togglePasswordVisibility}
+                      className="absolute right-5 top-1/2 transform -translate-y-1/2 text-black"
+                    >
+                      {showPassword ? (
+                        <FaEyeSlash size={25} />
+                      ) : (
+                        <FaEye size={25} />
+                      )}
+                    </button>
+                  </div>
+                  {errors.confirmPassword && <p className="text-red-500">{errors.confirmPassword}</p>}
+                </div>
+
+                {/* Next Button */}
                 <button
                   type="button"
                   onClick={handleNext}
@@ -247,55 +305,77 @@ const SignUp: React.FC = () => {
                   Company Information
                 </p>
 
-                <p className="text-black200 text-2xl py-4">Company Name:</p>
-                <input
-                  type="text"
-                  name="companyName"
-                  value={companyInfo.companyName}
-                  onChange={(e) => handleInputChange(e, "company")}
-                  placeholder="Company Name"
-                  className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
-                />
+                {/* Company Name */}
+                <div className="mb-4">
+                  <label className="block text-black200 text-2xl py-2">Company Name:</label>
+                  <input
+                    type="text"
+                    name="companyName"
+                    value={companyInfo.companyName}
+                    onChange={(e) => handleInputChange(e, "company")}
+                    placeholder="Company Name"
+                    className={`w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl ${
+                      errors.companyName ? 'border-red-500' : ''
+                    }`}
+                  />
+                  {errors.companyName && <p className="text-red-500">{errors.companyName}</p>}
+                </div>
 
-                <p className="text-black200 text-2xl py-4">Company Address:</p>
-                <input
-                  type="text"
-                  name="companyAddress"
-                  value={companyInfo.companyAddress}
-                  onChange={(e) => handleInputChange(e, "company")}
-                  placeholder="Company Address"
-                  className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
-                />
+                {/* Company Address */}
+                <div className="mb-4">
+                  <label className="block text-black200 text-2xl py-2">Company Address:</label>
+                  <input
+                    type="text"
+                    name="companyAddress"
+                    value={companyInfo.companyAddress}
+                    onChange={(e) => handleInputChange(e, "company")}
+                    placeholder="Company Address"
+                    className={`w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl ${
+                      errors.companyAddress ? 'border-red-500' : ''
+                    }`}
+                  />
+                  {errors.companyAddress && <p className="text-red-500">{errors.companyAddress}</p>}
+                </div>
 
-                <p className="text-black200 text-2xl py-4">Role:</p>
-                <select
-                  name="role"
-                  value={companyInfo.role}
-                  onChange={(e) => handleInputChange(e, "company")}
-                  className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
-                  required
-                >
+                {/* Role */}
+                <div className="mb-4">
+                  <label className="block text-black200 text-2xl py-2">Role:</label>
+                  <select
+                    name="role"
+                    value={companyInfo.role}
+                    onChange={(e) => handleInputChange(e, "company")}
+                    className={`w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl ${
+                      errors.role ? 'border-red-500' : ''
+                    }`}
+                    required
+                  >
+                    <option value="" disabled>
+                      Select your role
+                    </option>
+                    <option value="Employer">Employer</option>
+                    <option value="Employee">Employee</option>
+                  </select>
+                  {errors.role && <p className="text-red-500">{errors.role}</p>}
+                </div>
 
+                {/* Position */}
+                <div className="mb-4">
+                  <label className="block text-black200 text-2xl py-2">Position:</label>
+                  <input
+                    type="text"
+                    name="position"
+                    value={companyInfo.position}
+                    onChange={(e) => handleInputChange(e, "company")}
+                    placeholder="Position"
+                    className={`w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl ${
+                      errors.position ? 'border-red-500' : ''
+                    }`}
+                  />
+                  {errors.position && <p className="text-red-500">{errors.position}</p>}
+                </div>
 
-                  <option value="" disabled>
-                    Select your role
-                  </option>
-                  <option value="employer">Employer</option>
-                  <option value="employee">Employee</option>
-                </select>
-                <p className="text-black200 text-2xl py-4">Position:</p>
-                <input
-                  type="text"
-                  name="position"
-                  value={companyInfo.position}
-                  onChange={(e) => handleInputChange(e, "company")}
-                  placeholder="Position"
-                  required
-                  className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
-                />
-
-               
-   <div className="flex justify-between mt-10">
+                {/* Navigation Buttons */}
+                <div className="flex justify-between mt-10">
                   <button
                     type="button"
                     onClick={handleBack}
@@ -303,19 +383,19 @@ const SignUp: React.FC = () => {
                   >
                     Back
                   </button>
-                  
+
                   <button
                     type="submit"
                     className="text-white w-1/2 bg-blue-700 text-3xl rounded-lg py-3 ml-2"
-                    
                   >
                     Signup
                   </button>
                 </div>
               </>
             )}
-                  {/* Step indicators */}
-                  <div className="flex justify-center mt-8">
+
+            {/* Step Indicators */}
+            <div className="flex justify-center mt-8">
               <div
                 className={`w-4 h-4 rounded-full mx-1 ${
                   step === 1 ? "bg-blue-600" : "bg-gray-300"
@@ -325,16 +405,11 @@ const SignUp: React.FC = () => {
                 className={`w-4 h-4 rounded-full mx-1 ${
                   step === 2 ? "bg-blue-600" : "bg-gray-300"
                 }`}
-                />
-                </div>
+              />
+            </div>
           </form>
         </div>
       </div>
-      <CustomPopup
-        showPopup={showPopup}
-        popupMessage={popupMessage}
-        onClose={() => setShowPopup(false)}
-      />
     </div>
   );
 };

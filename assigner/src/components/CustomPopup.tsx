@@ -1,7 +1,5 @@
-// CustomPopup.tsx
-import React from 'react';
+import React from "react";
 
-// Define CustomPopupProps to include showPopup, popupMessage, and onClose
 interface CustomPopupProps {
   showPopup: boolean;
   popupMessage: string;
@@ -12,10 +10,15 @@ const CustomPopup: React.FC<CustomPopupProps> = ({ showPopup, popupMessage, onCl
   if (!showPopup) return null;
 
   return (
-    <div className="popup-overlay">
-      <div className="popup-content">
-        <p>{popupMessage}</p>
-        <button onClick={onClose} className="close-button">Close</button>
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg">
+        <p className="text-lg">{popupMessage}</p>
+        <button
+          onClick={onClose}
+          className="mt-4 bg-blue-700 text-white px-4 py-2 rounded"
+        >
+          Close
+        </button>
       </div>
     </div>
   );
