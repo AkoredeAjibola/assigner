@@ -5,7 +5,7 @@ import homeBg from "../assets/Home.png";
 import { addUser } from "../services/service";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import CustomPopup from "../components/CustomPopup";
-import { toast } from "react-toastify";
+//import { toast } from "react-toastify";
 
 // Define types for personal and company information
 interface PersonalInfo {
@@ -127,7 +127,7 @@ const SignUp: React.FC = () => {
       })
       .catch((err) => {
         console.error("Signup error:", err);
-        toast.error("Signup failed. Please try again.", { icon: false });
+       // toast.error("Signup failed. Please try again.", { icon: false });
       });
   };
 
