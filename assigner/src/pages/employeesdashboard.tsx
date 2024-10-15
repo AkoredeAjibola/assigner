@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import userIcon from '../assets/user-icon.png'; // Add your user image here
-import { AiOutlineMenu, AiOutlineDelete } from 'react-icons/ai'; // Import the delete icon
+import { AiOutlineMenu} from 'react-icons/ai'; 
+import { MdDelete } from 'react-icons/md';
 
 const Employeesdashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -71,9 +72,10 @@ const Employeesdashboard: React.FC = () => {
                       <span className="bg-yellow-200 text-yellow-800 px-2 py-1 rounded-full">Pending</span>
                     </td>
                     <td className="px-2 md:px-4 py-2">
-                      <button className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center">
-                        <AiOutlineDelete className="w-full h-full" />
-                      </button>
+                    <button>
+        <MdDelete className="text-red-600" size={24} /> {/* Change size and color as needed */}
+      </button>
+
                     </td>
                   </tr>
                 ))}
