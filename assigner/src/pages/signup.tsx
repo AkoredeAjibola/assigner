@@ -52,45 +52,56 @@ const SignUp: React.FC = () => {
 
   const validatePersonalInfo = (): boolean => {
     const newErrors: Partial<Record<keyof PersonalInfo, string>> = {};
-
+  
     if (!personalInfo.firstName.trim()) {
-      toast.error("First Name is required.");
+      newErrors.firstName = "First Name is required.";
+      toast.error(newErrors.firstName);
     }
     if (!personalInfo.lastName.trim()) {
-      toast.error("Last Name is required.");
+      newErrors.lastName = "Last Name is required.";
+      toast.error(newErrors.lastName);
     }
     if (!personalInfo.email.trim()) {
-      toast.error("Email is required.");
+      newErrors.email = "Email is required.";
+      toast.error(newErrors.email);
     } else if (!/\S+@\S+\.\S+/.test(personalInfo.email)) {
-      toast.error("Email is invalid.");
+      newErrors.email = "Email is invalid.";
+      toast.error(newErrors.email);
     }
     if (!personalInfo.password) {
-      toast.error("Password is required.");
+      newErrors.password = "Password is required.";
+      toast.error(newErrors.password);
     } else if (personalInfo.password.length < 6) {
-      toast.error("Password must be at least 6 characters long.");
+      newErrors.password = "Password must be at least 6 characters long.";
+      toast.error(newErrors.password);
     }
     if (personalInfo.password !== personalInfo.confirmPassword) {
-      toast.error("Passwords do not match!");
+      newErrors.confirmPassword = "Passwords do not match!";
+      toast.error(newErrors.confirmPassword);
     }
-
+  
     setErrors(prevErrors => ({ ...prevErrors, ...newErrors }));
-    return Object.keys(newErrors).length === 0;
+    return Object.keys(newErrors).length === 0; // Return whether there are no errors
   };
-
+  
   const validateCompanyInfo = (): boolean => {
     const newErrors: Partial<Record<keyof CompanyInfo, string>> = {};
 
     if (!companyInfo.companyName.trim()) {
+      newErrors.companyName = "Company Name is required.";
       toast.error("Company Name is required.");
     }
     if (!companyInfo.companyAddress.trim()) {
+      newErrors.companyAddress = "Company Address is required.";
       toast.error("Company Address is required.");
     }
-    // Corrected role validation
+    // Corrected role validation logic
     if (companyInfo.role !== 'Employer' && companyInfo.role !== 'Employee') {
+      newErrors.role = "Role is required.";
       toast.error("Role is required.");
     }
     if (!companyInfo.position.trim()) {
+      newErrors.position = "Position is required.";
       toast.error("Position is required.");
     }
 
@@ -98,9 +109,13 @@ const SignUp: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+
   const handleNext = () => {
-    if (validatePersonalInfo()) {
-      setStep(2);
+    // Validate personal information
+    const isValid = validatePersonalInfo(); // Call validation
+  
+    if (isValid) {
+      setStep(2); // Move to the next step only if valid
     }
   };
 
