@@ -9,6 +9,8 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase";
 
 // Define types for personal and company information
 interface PersonalInfo {
@@ -84,30 +86,30 @@ const SignUp: React.FC = () => {
     return Object.keys(newErrors).length === 0; // Return whether there are no errors
   };
   
-  const validateCompanyInfo = (): boolean => {
-    const newErrors: Partial<Record<keyof CompanyInfo, string>> = {};
+  // const validateCompanyInfo = (): boolean => {
+  //   const newErrors: Partial<Record<keyof CompanyInfo, string>> = {};
 
-    if (!companyInfo.companyName.trim()) {
-      newErrors.companyName = "Company Name is required.";
-      toast.error("Company Name is required.");
-    }
-    if (!companyInfo.companyAddress.trim()) {
-      newErrors.companyAddress = "Company Address is required.";
-      toast.error("Company Address is required.");
-    }
-    // Corrected role validation logic
-    if (companyInfo.role !== 'Employer' && companyInfo.role !== 'Employee') {
-      newErrors.role = "Role is required.";
-      toast.error("Role is required.");
-    }
-    if (!companyInfo.position.trim()) {
-      newErrors.position = "Position is required.";
-      toast.error("Position is required.");
-    }
+  //   if (!companyInfo.companyName.trim()) {
+  //     newErrors.companyName = "Company Name is required.";
+  //     toast.error("Company Name is required.");
+  //   }
+  //   if (!companyInfo.companyAddress.trim()) {
+  //     newErrors.companyAddress = "Company Address is required.";
+  //     toast.error("Company Address is required.");
+  //   }
+  //   // Corrected role validation logic
+  //   if (companyInfo.role !== 'Employer' && companyInfo.role !== 'Employee') {
+  //     newErrors.role = "Role is required.";
+  //     toast.error("Role is required.");
+  //   }
+  //   if (!companyInfo.position.trim()) {
+  //     newErrors.position = "Position is required.";
+  //     toast.error("Position is required.");
+  //   }
 
-    setErrors(prevErrors => ({ ...prevErrors, ...newErrors }));
-    return Object.keys(newErrors).length === 0;
-  };
+  //   setErrors(prevErrors => ({ ...prevErrors, ...newErrors }));
+  //   return Object.keys(newErrors).length === 0;
+  // };
 
 
   const handleNext = () => {
@@ -137,41 +139,88 @@ const SignUp: React.FC = () => {
     }
   };
 
+  // const onSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+
+  //   if (validateCompanyInfo()) {
+  //     const user = {
+  //       ...personalInfo,
+  //       ...companyInfo,
+  //     };
+
+  //     try {
+  //       await addUser(user);
+  //       toast.success("Signup successful! Redirecting to login page...", {
+  //         onClose: () => navigate("/login"), // Redirect after toast closes
+  //         autoClose: 2000, // 2 seconds
+  //       });
+
+  //       // Optionally, you can reset the form here if needed
+  //       setPersonalInfo({
+  //         firstName: "",
+  //         lastName: "",
+  //         email: "",
+  //         password: "",
+  //         confirmPassword: "",
+  //       });
+  //       setCompanyInfo({
+  //         companyName: "",
+  //         companyAddress: "",
+  //         role: "",
+  //         position: "",
+  //       });
+  //       setStep(1);
+  //     } catch (err) {
+  //       console.error("Signup error:", err);
+  //       toast.error("Signup failed. Please try again.");
+  //     }
+  //   }
+  // };
+
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    try {
+      // Create user in Firebase Authentication
+      const userCredential = await createUserWithEmailAndPassword(auth, personalInfo.email, personalInfo.password);
+      const user = userCredential.user;
 
-    if (validateCompanyInfo()) {
-      const user = {
+      const userData = {
         ...personalInfo,
         ...companyInfo,
       };
 
-      try {
-        await addUser(user);
-        toast.success("Signup successful! Redirecting to login page...", {
-          onClose: () => navigate("/login"), // Redirect after toast closes
-          autoClose: 2000, // 2 seconds
-        });
+      // Save additional user data in Firestore
+      await addUser(userData);
 
-        // Optionally, you can reset the form here if needed
-        setPersonalInfo({
-          firstName: "",
-          lastName: "",
-          email: "",
-          password: "",
-          confirmPassword: "",
-        });
-        setCompanyInfo({
-          companyName: "",
-          companyAddress: "",
-          role: "",
-          position: "",
-        });
-        setStep(1);
-      } catch (err) {
-        console.error("Signup error:", err);
-        toast.error("Signup failed. Please try again.");
-      }
+      console.log(user);
+
+      // Show success message with Toastify
+      toast.success("Account created successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+
+      // Redirect to login page or dashboard after successful sign-up
+      navigate('/login');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.log('Error signing up:', error);
+      // Display error message with Toastify
+      toast.error(error.message || "Failed to create account", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     }
   };
 
