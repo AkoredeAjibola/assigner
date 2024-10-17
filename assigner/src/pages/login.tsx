@@ -23,11 +23,13 @@ const Login = () => {
       // Sign in user
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
+      console.log("Logged in user:", user);
   
       // Retrieve user data from Firestore
       const userDoc = await getDoc(doc(db, "Users", user.uid));
       if (userDoc.exists()) {
         const userData = userDoc.data();
+        console.log("Retrieved user data:", userData); 
         const userRole = userData?.role;
   
         // Redirect based on role

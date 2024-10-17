@@ -1,5 +1,7 @@
-import {collection, addDoc} from 'firebase/firestore';
+
 import {db} from '../firebase'
+import { doc, setDoc } from 'firebase/firestore';
+import { auth } from '../firebase'; // Import Firebase Auth
 
 interface UserData {
   firstName: string;
@@ -14,10 +16,20 @@ interface UserData {
 
 export const addUser = async (user: UserData) => {
   try {
+    // Get the current authenticated user's uid
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error('No authenticated user found');
+    }
+
+    const uid = currentUser.uid; // Retrieve uid from the authenticated user
+
     console.log("Adding user:", user); // Log user data before adding to Firebase
-    const docRef = await addDoc(collection(db, "Users"), user);
-    console.log("User with ID:", docRef.id); 
+    const userDocRef = doc(db, "Users", uid); // Use uid as document ID
+    await setDoc(userDocRef, user); // Set the document with the given uid
+    console.log("User added successfully with uid:", uid);
   } catch (e) {
     console.log("Error adding user data", e);
   }
 };
+

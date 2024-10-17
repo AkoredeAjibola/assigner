@@ -196,19 +196,14 @@ const SignUp: React.FC = () => {
       console.log(user);
 
       // Show success message with Toastify
-      toast.success("Account created successfully!", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
 
-      // Redirect to login page or dashboard after successful sign-up
-      navigate('/login');
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      toast.success("Signup successful! Redirecting to login page...", {
+                onClose: () => navigate("/login"), // Redirect after toast closes
+                autoClose: 3000, // 3 seconds
+              });
+       
+    
+
     } catch (error: any) {
       console.log('Error signing up:', error);
       // Display error message with Toastify
@@ -447,13 +442,15 @@ const SignUp: React.FC = () => {
                   >
                     Back
                   </button>
-
-                  <button
+                  <button 
                     type="submit"
                     className="text-white w-1/2 bg-blue-700 text-3xl rounded-lg py-3 ml-2"
                   >
                     Signup
                   </button>
+               
+    
+
                 </div>
               </>
             )}
