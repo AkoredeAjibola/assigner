@@ -5,6 +5,8 @@ import homeBg from "../assets/Home.png";
 import image2 from "../assets/undraw_Login_re_4vu2 (1) 1.png";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
+import { db } from "../firebase";
+import { doc, getDoc } from "firebase/firestore";
 import { ToastContainer, toast } from "react-toastify"; // Import Toastify
 import "react-toastify/dist/ReactToastify.css"; // Toastify CSS
 
@@ -19,9 +21,23 @@ const Login = () => {
     e.preventDefault();
     try {
       // Sign in user
-      await signInWithEmailAndPassword(auth, email, password);
-      // Redirect to dashboard or home after successful login
-      navigate("/dashboard");
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+  
+      // Retrieve user data from Firestore
+      const userDoc = await getDoc(doc(db, "Users", user.uid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        const userRole = userData?.role;
+  
+        // Redirect based on role
+        if (userRole === "Employer") {
+          navigate("/employer-dashboard");
+        } else if (userRole === "Employee") {
+          navigate("/employee-dashboard");
+        } else {
+          toast.error("User role not found.");
+        }
       toast.success("Login successfully!", {
         position: "top-right",
         autoClose: 3000,
@@ -31,6 +47,9 @@ const Login = () => {
         draggable: true,
         progress: undefined,
       });
+    } else {
+      toast.error("User data not found.");
+    }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.log("Error logging in:", error);

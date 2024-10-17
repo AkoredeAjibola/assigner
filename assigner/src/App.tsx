@@ -4,6 +4,7 @@ import LandingPage from "./pages/landing-page";
 import Login from "./pages/login";
 import SignUp from "./pages/signup";
 import Employeesdashboard from "./pages/employeesdashboard";
+import Employersdashboard from "./pages/employersdashboard";
 
 function App() {
   return (
@@ -12,7 +13,8 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/dashboard" element={<Employeesdashboard />} />
+        <Route path="/employee-dashboard" element={<Employeesdashboard />} />
+        <Route path="employer-dashboard" element={<Employersdashboard/>} />
       </Routes>
     </BrowserRouter>
   );
