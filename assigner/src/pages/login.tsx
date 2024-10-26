@@ -7,6 +7,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 import { db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
+import { useAuth } from '../context/AuthProvider';
 import { ToastContainer, toast } from "react-toastify"; // Import Toastify
 import "react-toastify/dist/ReactToastify.css"; // Toastify CSS
 
@@ -16,6 +17,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const { setIsAuthenticated } = useAuth();
   // Function to handle login logic
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,13 +27,17 @@ const Login = () => {
       const user = userCredential.user;
       console.log("Logged in user:", user);
   
+
+      setIsAuthenticated(true);
+
       // Retrieve user data from Firestore
-      const userDoc = await getDoc(doc(db, "Users", user.uid));
+      const userDoc = await getDoc(doc(db, "Users", user.uid)); 
       if (userDoc.exists()) {
         const userData = userDoc.data();
         console.log("Retrieved user data:", userData); 
         const userRole = userData?.role;
-  
+
+
         // Redirect based on role
         if (userRole === "Employer") {
           navigate("/employer-dashboard");
