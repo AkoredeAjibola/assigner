@@ -8,25 +8,56 @@ import { auth } from "../firebase";
 import { db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { useAuth } from '../context/AuthProvider';
-import { ToastContainer, toast } from "react-toastify"; // Import Toastify
-import "react-toastify/dist/ReactToastify.css"; // Toastify CSS
+import { ToastContainer, toast } from "react-toastify"; 
+import "react-toastify/dist/ReactToastify.css"; 
 
 const Login = () => {
-  // const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const { setIsAuthenticated } = useAuth();
-  // Function to handle login logic
+
+  const validateEmail = (email: string): boolean => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate the email format
+    if (!validateEmail(email)) {
+      toast.error("Please enter a valid email address.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      return; // Stop further execution if the email is invalid
+    }
+
     try {
       // Sign in user
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      console.log("Logged in user:", user);
-  
+
+      // Check if the email is verified
+      if (!user.emailVerified) {
+        toast.error("Please verify your email address before logging in.", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+        return; // Stop further execution if the email is not verified
+      }
 
       setIsAuthenticated(true);
 
@@ -34,9 +65,7 @@ const Login = () => {
       const userDoc = await getDoc(doc(db, "Users", user.uid)); 
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        console.log("Retrieved user data:", userData); 
         const userRole = userData?.role;
-
 
         // Redirect based on role
         if (userRole === "Employer") {
@@ -46,19 +75,19 @@ const Login = () => {
         } else {
           toast.error("User role not found.");
         }
-      toast.success("Login successfully!", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
-    } else {
-      toast.error("User data not found.");
-    }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+        toast.success("Login successfully!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      } else {
+        toast.error("User data not found.");
+      }
     } catch (error: any) {
       console.log("Error logging in:", error);
       toast.error(error.message || "Failed to login", {
@@ -112,7 +141,6 @@ const Login = () => {
             </button>
           </form>
 
-          {/* Toast container for Toastify notifications */}
           <ToastContainer />
         </div>
 

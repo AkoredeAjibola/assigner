@@ -12,6 +12,7 @@ interface UserData {
   companyAddress: string;
   role: string;
   position: string;
+
 }
 
 export const addUser = async (user: UserData) => {
@@ -24,10 +25,9 @@ export const addUser = async (user: UserData) => {
 
     const uid = currentUser.uid; // Retrieve uid from the authenticated user
 
-    console.log("Adding user:", user); // Log user data before adding to Firebase
     const userDocRef = doc(db, "Users", uid); // Use uid as document ID
     await setDoc(userDocRef, user); // Set the document with the given uid
-    console.log("User added successfully with uid:", uid);
+  
   } catch (e) {
     console.log("Error adding user data", e);
   }

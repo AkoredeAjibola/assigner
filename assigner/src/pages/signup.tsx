@@ -9,7 +9,8 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+
 import { auth } from "../firebase";
 
 // Define types for personal and company information
@@ -193,11 +194,14 @@ const SignUp: React.FC = () => {
       // Save additional user data in Firestore
       await addUser(userData);
 
+    await sendEmailVerification(user);
+
+
       console.log(user);
 
       // Show success message with Toastify
 
-      toast.success("Signup successful! Redirecting to login page...", {
+      toast.success("Signup successful! Please verify your email before logging in.", {
                 onClose: () => navigate("/login"), // Redirect after toast closes
                 autoClose: 3000, // 3 seconds
               });
