@@ -2,14 +2,12 @@ import { db } from "../firebase";
 import {
   doc,
   setDoc,
-  getFirestore,
   getDoc,
   collection,
   query,
   where,
   getDocs,
   addDoc,
-  updateDoc,
   deleteDoc,
 } from "firebase/firestore";
 import { auth } from "../firebase"; // Import Firebase Auth
