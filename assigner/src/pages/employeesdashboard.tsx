@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
 import { getFirestore, collection, query, where, getDoc, getDocs, updateDoc, doc } from 'firebase/firestore';
-import userIcon from '../assets/user-icon.png';
+// import userIcon from '../assets/user-icon.png';
+import DashNavbar from '../components/dashNavbar';
 import { AiOutlineMenu } from 'react-icons/ai';
 
 const Employeesdashboard: React.FC = () => {
@@ -86,7 +87,11 @@ const Employeesdashboard: React.FC = () => {
     }, [auth]);
 
     return (
+        <div>
+               <DashNavbar/>
+
         <div className="flex h-screen relative">
+
             <button
                 className="absolute top-6 left-4 text-3xl md:hidden z-50"
                 onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -96,11 +101,11 @@ const Employeesdashboard: React.FC = () => {
 
             <aside className={`w-64 md:w-1/4 bg-blue-800 text-white flex flex-col justify-between p-4 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out md:translate-x-0 fixed md:relative z-40 h-full`}>
                 <div className="space-y-8 mt-4 md:mt-8">
-                    <div className="flex items-center justify-start pl-4 md:pl-8">
+                    {/* <div className="flex items-center justify-start pl-4 md:pl-8">
                         <img src={userIcon} alt="User" className="rounded-full w-20 h-20 md:w-24 md:h-24" />
-                    </div>
+                    </div> */}
                     <div className="text-xl md:text-2xl font-bold pl-4 md:pl-8">
-                        {getGreeting()}, {employeeName.firstName} {employeeName.lastName}
+                        {getGreeting()}, {employeeName.firstName} 
                     </div>
                     <nav className="space-y-4 md:space-y-6 pl-4 md:pl-8 flex flex-col items-start">
                         <a href="#" className="text-lg hover:underline">Tasks</a>
@@ -149,6 +154,7 @@ const Employeesdashboard: React.FC = () => {
                     )}
                 </div>
             </div>
+        </div>
         </div>
     );
 };

@@ -1,4 +1,4 @@
-// src/pages/SignUp.tsx
+
 
 import React, { useState, ChangeEvent } from "react";
 import image3 from "../assets/undraw_my_app_re_gxtj 1.png";
