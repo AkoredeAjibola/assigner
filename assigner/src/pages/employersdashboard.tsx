@@ -84,11 +84,12 @@ const Employersdashboard: React.FC = () => {
         title: taskTitle,
         description: taskDescription,
         dueDate,
-        assignedBy: userDetails.uid,
+        assignedBy: auth?.currentUser?.uid,
         companyName: userDetails.companyName,
         assignedTo: assignedEmployee,
         status: "Pending",
       };
+      console.log(userDetails, taskDetails);
       await createTask(taskDetails);
 
       setTaskTitle("");
