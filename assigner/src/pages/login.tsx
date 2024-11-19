@@ -8,8 +8,8 @@ import { auth } from "../firebase";
 import { db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { useAuth } from '../context/AuthProvider';
-import { ToastContainer, toast } from "react-toastify"; 
-import "react-toastify/dist/ReactToastify.css"; 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -62,7 +62,7 @@ const Login = () => {
       setIsAuthenticated(true);
 
       // Retrieve user data from Firestore
-      const userDoc = await getDoc(doc(db, "Users", user.uid)); 
+      const userDoc = await getDoc(doc(db, "Users", user.uid));
       if (userDoc.exists()) {
         const userData = userDoc.data();
         const userRole = userData?.role;
@@ -88,6 +88,7 @@ const Login = () => {
       } else {
         toast.error("User data not found.");
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.log("Error logging in:", error);
       toast.error(error.message || "Failed to login", {
@@ -131,7 +132,7 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full text-lg shadow-lg p-4 border-gray-300 rounded-xl"
             />
-           
+
             <br />
             <button
               className="text-white mt-10 w-full bg-red-600 text-3xl rounded-lg py-3"

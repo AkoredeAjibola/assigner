@@ -208,6 +208,7 @@ const SignUp: React.FC = () => {
        
     
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.log('Error signing up:', error);
       // Display error message with Toastify

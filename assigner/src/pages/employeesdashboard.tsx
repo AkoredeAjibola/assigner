@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
@@ -11,6 +12,7 @@ const Employeesdashboard: React.FC = () => {
     const auth = getAuth();
     const db = getFirestore();
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [tasks, setTasks] = useState<any[]>([]);
     const [employeeName, setEmployeeName] = useState({ firstName: '', lastName: '' });
 

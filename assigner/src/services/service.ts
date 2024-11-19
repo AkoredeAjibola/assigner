@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from "../firebase";
 import {
   doc,
@@ -41,7 +43,7 @@ export interface Task {
   status: string;
   companyName: string;
   assignedBy: string;
-
+  assignedByName: string;
 }
 
 export const addUser = async (user: UserData) => {
@@ -85,14 +87,13 @@ export const fetchEmployees = async (userId: string) => {
       }));
 
       return employeeList;
-    }  else {
+    } else {
       console.error("User document not found.");
     }
   } catch (error) {
     console.error("Error fetching employees.");
   }
 };
-
 
 export const fetchTasks = async () => {
   try {
@@ -102,7 +103,7 @@ export const fetchTasks = async () => {
       id: doc.id,
       ...(doc.data() as Omit<Task, "id">),
     }));
-    
+
     return taskList;
   } catch (error) {
     console.error("Error fetching tasks.");
@@ -123,7 +124,7 @@ export const fetchUserData = async (userId: string) => {
 
 export const createTask = async (taskDetails: any) => {
   await addDoc(collection(db, "Tasks"), taskDetails);
-}
+};
 
 export const handleDeleteTask = async (taskId: string) => {
   try {
