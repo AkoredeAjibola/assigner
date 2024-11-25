@@ -535,7 +535,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Auth, getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import DashNavbar from "../components/dashNavbar";
 import { AiFillDelete, AiOutlineMenu } from "react-icons/ai";
 import { ToastContainer, toast } from "react-toastify";
